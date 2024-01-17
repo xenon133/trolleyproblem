@@ -11,7 +11,7 @@ def single_persona_ui():
         return age_selector.value, gender_selector.value, child_amount_selector.value
 
     age_selector = widgets.BoundedIntText(
-        value=30,
+        value=40,
         min=0,
         max=100,
         step=1,
@@ -33,13 +33,22 @@ def single_persona_ui():
     return vbox
 
 def weights_ui():
+# Set layout for right alignment
+    # Set layout for all sliders to have the same length
+    slider_layout = widgets.Layout(width='250px')
+    label_layout = widgets.Layout(width='fit-content')
+
     age_weight = widgets.FloatSlider(
         value=0.5,
         min=0,
         max=1,
         step=0.01,
-        description='Younger-Older: ',
-        disabled=False
+        disabled=False,
+        layout=slider_layout
+    )
+    age_label = widgets.Label(
+        'Younger - Older: ',
+        layout=label_layout,
     )
 
     gender_weight = widgets.FloatSlider(
@@ -47,20 +56,30 @@ def weights_ui():
         min=0,
         max=1,
         step=0.01,
-        description='Male-Female: ',
-        disabled=False
+        disabled=False,
+        layout=slider_layout
     )
+    gender_label = widgets.Label(
+        'Male - Female:  ',
+        layout=label_layout)
 
     child_amount_weight = widgets.FloatSlider(
         value=0.5,
         min=0,
         max=1,
         step=0.01,
-        description='Less Children - More Children: ',
-        disabled=False
+        disabled=False,
+        layout=slider_layout
     )
+    child_label = widgets.Label(
+        'Less Children - More Children: ',
+        layout=label_layout)
 
-    vbox = widgets.VBox([age_weight, gender_weight, child_amount_weight])
+    vbox = widgets.HBox([
+        widgets.VBox([age_label, gender_label, child_label]),
+        widgets.VBox([age_weight, gender_weight, child_amount_weight])
+    ])
+
     return vbox
 
 
@@ -83,8 +102,8 @@ def persona_ui():
 
 def run_over(b, persona_1_ui, persona_2_ui, weights, output):
     with output:
-        rvs = list(dp.convert_persona([x.value for x in persona_1_ui.children], 25, weights.children[0].value, weights.children[1].value, weights.children[2].value))
-        rvs += dp.convert_persona([x.value for x in persona_2_ui.children], 25, weights.children[0].value, weights.children[1].value, weights.children[2].value)
+        rvs = list(dp.convert_persona([x.value for x in persona_1_ui.children], 25, weights.children[1].children[0].value, weights.children[1].children[1].value, weights.children[1].children[2].value))
+        rvs += dp.convert_persona([x.value for x in persona_2_ui.children], 25, weights.children[1].children[0].value, weights.children[1].children[1].value, weights.children[1].children[2].value)
         model = cl.init_cl()
         model.eval()
         pred = model(torch.tensor(rvs, dtype=torch.float32))
